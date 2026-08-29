@@ -1,0 +1,97 @@
+<div class="container">
+  <h1>Team Manager</h1>
+
+  <!-- 1. Form Section -->
+  <section class="card-box">
+    <h2>Add New Member</h2>
+    <form (ngSubmit)="addMember()" #memberForm="ngForm">
+      <div class="form-group">
+        <label>Name:</label>
+        <input type="text" [(ngModel)]="newMember.name" name="name" required placeholder="Enter member name" />
+      </div>
+
+      <div class="form-group">
+        <label>Age:</label>
+        <input type="number" [(ngModel)]="newMember.age" name="age" required min="1" />
+      </div>
+
+      <div class="form-group">
+        <label>Department:</label>
+        <select [(ngModel)]="newMember.department" name="department">
+          @for (dept of departments; track dept) {
+            <option [value]="dept">{{ dept }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" [(ngModel)]="newMember.isAvailable" name="isAvailable" />
+          Available
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-add">Add Member</button>
+    </form>
+  </section>
+
+  <!-- 2. Controls Section -->
+  <section class="controls">
+    <div class="filter-box">
+      <label>Filter by Department: </label>
+      <select [(ngModel)]="selectedDepartment">
+        <option value="All">All Departments</option>
+        @for (dept of departments; track dept) {
+          <option [value]="dept">{{ dept }}</option>
+        }
+      </select>
+    </div>
+
+    <div class="view-switcher">
+      <button [class.active]="viewMode === 'card'" (click)="viewMode = 'card'">Card View</button>
+      <button [class.active]="viewMode === 'list'" (click)="viewMode = 'list'">List View</button>
+    </div>
+  </section>
+
+  <!-- 3. Members Display Section -->
+  <section class="members-container">
+    @if (filteredMembers.length === 0) {
+      <p class="empty-msg">No team members found.</p>
+    } @else {
+      @switch (viewMode) {
+        @case ('card') {
+          <div class="card-grid">
+            @for (member of filteredMembers; track member.name) {
+              <div class="member-card" [class.unavailable]="!member.isAvailable">
+                <h3>{{ member.name }}</h3>
+                <p><strong>Age:</strong> {{ member.age }}</p>
+                <p><strong>Department:</strong> {{ member.department }}</p>
+                <p>
+                  <strong>Status:</strong> 
+                  <span class="badge" [class.status-on]="member.isAvailable" [class.status-off]="!member.isAvailable">
+                    {{ member.isAvailable ? 'Available' : 'Unavailable' }}
+                  </span>
+                </p>
+                <button class="btn btn-toggle" (click)="toggleStatus(member)">
+                  Toggle Status
+                </button>
+              </div>
+            }
+          </div>
+        }
+        @case ('list') {
+          <ul class="member-list">
+            @for (member of filteredMembers; track member.name) {
+              <li [class.unavailable-text]="!member.isAvailable">
+                <span class="list-info">
+                  <strong>{{ member.name }}</strong> - {{ member.department }} - {{ member.isAvailable ? '✔️' : '❌' }}
+                </span>
+                <button class="btn btn-toggle-sm" (click)="toggleStatus(member)">Toggle</button>
+              </li>
+            }
+          </ul>
+        }
+      }
+    }
+  </section>
+</div>
